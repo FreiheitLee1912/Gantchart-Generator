@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gantt Chart Generator - Timeline Focused v3</title>
+    <meta name="description" content="Convert Jira CSV exports to beautiful Gantt charts suitable for PowerPoint presentations - version 2 (timeline focused)">
+    <link rel="stylesheet" href="styles_v2.css?v=20260520-16">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header" id="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <rect x="5" y="13" width="8" height="2" rx="1" fill="currentColor"/>
+                            <rect x="7" y="17" width="10" height="2" rx="1" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="app-title">Gantt Chart Generator <span style="font-size: 0.8rem; background: var(--accent-gradient); color: white; padding: 2px 6px; border-radius: 4px; margin-left: 4px; vertical-align: middle; -webkit-text-fill-color: initial;">v3</span></h1>
+                        <p class="app-subtitle">CSV to PPT-Ready Gantt Chart (Timeline Focused)</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-ghost" id="btn-toggle-theme" title="Toggle theme">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="upload-section" id="upload-section">
+                <div class="upload-card glass-card">
+                    <div class="upload-icon-wrapper">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+                    <h2>Upload CSV files</h2>
+                    <p class="upload-desc">Drag Jira CSV exports here, or click to choose one or more files. This version uses DN/D/A for display, ET for start date, X for end date, and E for status.</p>
+                    <div class="drop-zone" id="drop-zone">
+                        <input type="file" id="file-input" accept=".csv" multiple hidden>
+                        <div class="drop-zone-content">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            <span>Choose CSV files (.csv)</span>
+                        </div>
+                    </div>
+                    <div class="loaded-files" id="loaded-files"></div>
+                    <button class="btn btn-secondary hidden" id="btn-download-simple-csv" type="button">
+                        Download Simple CSV
+                    </button>
+                </div>
+            </section>
+
+            <section class="controls-section hidden" id="controls-section">
+                <div class="controls-bar glass-card">
+                    <div class="controls-left">
+                        <div class="control-group">
+                            <label for="project-select">Project</label>
+                            <select id="project-select" class="control-select">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="view-mode">View:</label>
+                            <div class="view-toggle" id="view-mode">
+                                <button class="view-btn active" data-view="month">Month</button>
+                                <button class="view-btn" data-view="quarter">Quarter</button>
+                                <button class="view-btn" data-view="year">Year</button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="group-by">Group</label>
+                            <select id="group-by" class="control-select">
+                                <option value="type">Type</option>
+                                <option value="parent">Parent</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-checkbox-label" style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer; color: var(--text-secondary); user-select: none;">
+                                <input type="checkbox" id="hide-summary" checked style="cursor: pointer; width: 14px; height: 14px; accent-color: var(--accent-primary);">
+                                Hide Summary (Text in Timeline)
+                            </label>
+                        </div>
+                        <div class="control-divider"></div>
+                        <div class="control-group">
+                            <label>PPT range:</label>
+                            <input type="date" id="timeline-start" class="control-input" title="Start date">
+                            <span class="control-separator">to</span>
+                            <input type="date" id="timeline-end" class="control-input" title="End date">
+                            <button class="btn btn-ghost btn-sm" id="btn-reset-range" title="Reset range">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"/>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="controls-right">
+                        <button class="btn btn-pptx-wide" id="btn-export-pptx">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export 16:9 PPTX
+                        </button>
+                        <button class="btn btn-pptx-4x3" id="btn-export-pptx-4x3">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export 4:3 PPTX
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="gantt-section hidden" id="gantt-section">
+                <div class="gantt-wrapper" id="gantt-wrapper">
+                    <div class="gantt-container" id="gantt-container">
+                        <div class="gantt-labels" id="gantt-labels"></div>
+                        <div class="gantt-timeline-wrapper" id="gantt-timeline-wrapper">
+                            <div class="gantt-timeline-header" id="gantt-timeline-header"></div>
+                            <div class="gantt-timeline-body" id="gantt-timeline-body"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gantt-legend" id="gantt-legend">
+                    <div class="legend-item"><span class="legend-color" style="background: var(--milestone-color)"></span><span>Milestone</span></div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--goal-color)"></span><span>Goal</span></div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--review-color)"></span><span>Review</span></div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--event-color)"></span><span>Event</span></div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--task-color)"></span><span>Task</span></div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--validation-color)"></span><span>Validation/PPAP</span></div>
+                    <div class="legend-item"><span class="legend-today"></span><span>Today</span></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="vendor/html2canvas.min.js"></script>
+    <script src="vendor/jszip.min.js"></script>
+    <script src="vendor/pptxgen.min.js"></script>
+    <script src="app_v3.js?v=20260527-01"></script>
+</body>
+</html>

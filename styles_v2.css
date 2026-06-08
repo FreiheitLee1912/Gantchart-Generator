@@ -1,0 +1,1256 @@
+/* ========================================
+   CSS Design System - Gantt Chart Generator
+   ======================================== */
+
+:root {
+    /* Color Palette - Smartsheet Inspired (Dark mode fallback) */
+    --bg-primary: #12141a;
+    --bg-secondary: #1a1d26;
+    --bg-card: rgba(26, 29, 38, 0.9);
+    --bg-hover: rgba(255, 255, 255, 0.05);
+
+    --text-primary: #f0f2f5;
+    --text-secondary: #a0aec0;
+    --text-muted: #718096;
+    --text-accent: #4299e1;
+
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-active: rgba(66, 153, 225, 0.5);
+
+    --accent-primary: #3182ce;
+    --accent-secondary: #805ad5;
+    --accent-gradient: linear-gradient(135deg, #3182ce, #805ad5);
+
+    /* Task Type Colors (Smartsheet-inspired Palette) */
+    --milestone-color: #f4a6a6;
+    --goal-color: #68d391;
+    --review-color: #63b3ed;
+    --event-color: #b794f4;
+    --task-color: #003b75;
+    --validation-color: #f56565;
+    --sop-color: #ecc94b;
+    --certificate-color: #4299e1;
+    --ppap-color: #fc8181;
+    --default-color: #a0aec0;
+    --completed-color: #48bb78;
+
+    /* Gantt specific */
+    --gantt-row-height: 44px;
+    --gantt-header-height: 70px;
+    --gantt-label-width: 680px;
+    --gantt-bar-height: 24px;
+    --gantt-grid-color: rgba(255, 255, 255, 0.05);
+    --gantt-today-color: #e53e3e;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+    --shadow-glow: 0 0 20px rgba(138, 180, 248, 0.15);
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 400ms ease;
+}
+
+/* Light theme - Pure Smartsheet Aesthetic */
+[data-theme="light"] {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-card: rgba(255, 255, 255, 0.98);
+    --bg-hover: rgba(0, 0, 0, 0.02);
+
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-accent: #2563eb;
+
+    --border-color: #e2e8f0;
+    --border-active: #94a3b8;
+
+    --accent-primary: #2563eb;
+    --accent-secondary: #7c3aed;
+    --accent-gradient: linear-gradient(135deg, #2563eb, #7c3aed);
+
+    --gantt-grid-color: #f1f5f9;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    --shadow-glow: 0 0 15px rgba(37, 99, 235, 0.05);
+    
+    /* Specific row colors in light theme often alternate */
+    --gantt-row-alt: #f1f5f9;
+}
+
+/* ========================================
+   Reset & Base
+   ======================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ========================================
+   Layout
+   ======================================== */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    padding: var(--space-lg);
+    max-width: 100%;
+}
+
+/* ========================================
+   Glass Card
+   ======================================== */
+.glass-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   Header
+   ======================================== */
+.app-header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--space-md) var(--space-lg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: var(--shadow-glow);
+}
+
+.app-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.app-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-ghost:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--border-active);
+}
+
+.btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
+}
+
+.btn-accent {
+    background: linear-gradient(135deg, #f97316, #ef4444);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-accent:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-pptx-wide {
+    background: linear-gradient(135deg, #1d4ed8, #0f766e);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-pptx-wide:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.btn-pptx-4x3 {
+    background: linear-gradient(135deg, #7c3aed, #db2777);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-pptx-4x3:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-hover);
+    transform: translateY(-1px);
+}
+
+/* ========================================
+   Upload Section
+   ======================================== */
+.upload-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    animation: fadeInUp 0.6s ease;
+}
+
+.upload-card {
+    padding: var(--space-2xl) var(--space-xl);
+    text-align: center;
+    max-width: 520px;
+    width: 100%;
+}
+
+.upload-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    color: white;
+    margin-bottom: var(--space-lg);
+    box-shadow: var(--shadow-glow);
+    animation: float 3s ease-in-out infinite;
+}
+
+.upload-card h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+}
+
+.upload-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-lg);
+    line-height: 1.6;
+}
+
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl) var(--space-lg);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    position: relative;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--accent-primary);
+    background: rgba(138, 180, 248, 0.05);
+}
+
+.drop-zone.drag-over {
+    transform: scale(1.02);
+}
+
+.drop-zone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.loaded-files {
+    margin-top: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.loaded-file {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(39, 174, 96, 0.1);
+    border: 1px solid rgba(39, 174, 96, 0.2);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: #6fcf97;
+    animation: fadeInUp 0.3s ease;
+}
+
+.loaded-file svg {
+    flex-shrink: 0;
+}
+
+/* ========================================
+   Controls Section
+   ======================================== */
+.controls-section {
+    margin-bottom: var(--space-md);
+    animation: fadeInUp 0.4s ease;
+}
+
+.controls-bar {
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.controls-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.controls-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.control-group label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.control-select {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+
+.control-select:hover {
+    border-color: var(--border-active);
+}
+
+.control-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.2);
+}
+
+.view-toggle {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.view-btn {
+    padding: 6px 14px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border-right: 1px solid var(--border-color);
+}
+
+.view-btn:last-child {
+    border-right: none;
+}
+
+.view-btn.active {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.view-btn:hover:not(.active) {
+    background: var(--bg-hover);
+}
+
+/* Timeline range controls */
+.control-input {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 5px 8px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+    width: 130px;
+}
+
+.control-input:hover {
+    border-color: var(--border-active);
+}
+
+.control-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.2);
+}
+
+.control-separator {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 0 2px;
+}
+
+.control-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+    flex-shrink: 0;
+}
+
+.btn-sm {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+}
+
+/* ========================================
+   Gantt Chart
+   ======================================== */
+.gantt-section {
+    animation: fadeInUp 0.5s ease;
+}
+
+.gantt-wrapper {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-lg);
+}
+
+.gantt-container {
+    display: flex;
+    overflow: auto;
+    position: relative;
+}
+
+/* Labels Panel */
+.gantt-labels {
+    width: var(--gantt-label-width);
+    min-width: 560px;
+    max-width: 860px;
+    border-right: 2px solid var(--border-color);
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: var(--bg-secondary);
+    resize: horizontal;
+    overflow: auto;
+}
+
+.gantt-label-header {
+    height: var(--gantt-header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-md);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.gantt-label-row {
+    height: var(--gantt-row-height);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-sm) 0 var(--space-md);
+    border-bottom: 1px solid var(--gantt-grid-color);
+    transition: background var(--transition-fast);
+    gap: var(--space-sm);
+    cursor: default;
+}
+
+.gantt-label-row:hover {
+    filter: brightness(0.985);
+}
+
+.gantt-label-row.group-header {
+    background: rgba(138, 180, 248, 0.05);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.gantt-label-row.child-row {
+    padding-left: calc(var(--space-md) + 16px);
+}
+
+.task-type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.task-status {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    min-width: 90px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.task-key {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    min-width: 60px;
+}
+
+.task-name {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 190px;
+}
+
+.task-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.move-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-right: var(--space-sm);
+    opacity: 0.3;
+    transition: opacity var(--transition-fast);
+}
+
+.gantt-label-row:hover .move-controls {
+    opacity: 1;
+}
+
+.move-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.6rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px;
+}
+
+.move-btn:hover {
+    color: var(--accent-primary);
+}
+
+.task-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 85px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.editable {
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+}
+
+.editable:hover {
+    background: var(--bg-hover);
+    box-shadow: inset 0 0 0 1px var(--border-color);
+}
+
+.editable:focus {
+    outline: none;
+    background: var(--bg-secondary);
+    box-shadow: 0 0 0 2px var(--accent-primary);
+    z-index: 10;
+}
+
+/* Timeline Panel */
+.gantt-timeline-wrapper {
+    flex: 1;
+    overflow-x: auto;
+    position: relative;
+}
+
+.gantt-timeline-header {
+    height: var(--gantt-header-height);
+    display: flex;
+    flex-direction: column;
+    border-bottom: 2px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bg-secondary);
+}
+
+.timeline-year-row {
+    display: flex;
+    height: 35px;
+    border-bottom: 1px solid var(--border-color);
+    background: #e2e8f0;
+}
+
+.timeline-year-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    border-right: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.timeline-month-row {
+    display: flex;
+    height: 35px;
+}
+
+.timeline-month-label-hier {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-right: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+[data-theme="dark"] .timeline-year-row {
+    background: #1e293b;
+}
+
+[data-theme="dark"] .timeline-year-label {
+    color: #f8fafc;
+}
+
+.timeline-month {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.timeline-month-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 4px 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--gantt-grid-color);
+}
+
+.timeline-month-sublabels {
+    display: flex;
+    flex: 1;
+}
+
+.timeline-sublabel {
+    flex: 1;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--gantt-grid-color);
+}
+
+.timeline-sublabel:last-child {
+    border-right: none;
+}
+
+.gantt-timeline-body {
+    position: relative;
+    min-height: 200px;
+}
+
+.gantt-row {
+    height: var(--gantt-row-height);
+    position: relative;
+    border-bottom: 1px solid var(--gantt-grid-color);
+}
+
+.gantt-row.group-header {
+    background: rgba(138, 180, 248, 0.03);
+}
+
+/* Grid lines */
+.gantt-grid-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--gantt-grid-color);
+    z-index: 1;
+}
+
+.gantt-grid-line.month-line {
+    background: var(--border-color);
+}
+
+/* Bars */
+.gantt-bar {
+    position: absolute;
+    height: var(--gantt-bar-height);
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    z-index: 2;
+    min-width: 6px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.gantt-bar:hover {
+    filter: brightness(1.15);
+    transform: translateY(-50%) scale(1.03);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 3;
+}
+
+.gantt-bar-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: white;
+    padding: 0 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Milestone star */
+.gantt-bar.milestone {
+    width: 24px !important;
+    height: 24px;
+    min-width: 24px;
+    transform: translateY(-50%);
+    justify-content: center;
+    overflow: visible;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    border: 0;
+    box-shadow: none;
+}
+
+.gantt-bar.milestone:hover {
+    transform: translateY(-50%) scale(1.18);
+}
+
+.gantt-bar.milestone .gantt-bar-label {
+    display: none;
+}
+
+/* Diamond task (Step Meeting) */
+.gantt-bar.diamond {
+    width: 24px !important;
+    height: 24px;
+    min-width: 24px;
+    transform: translateY(-50%);
+    justify-content: center;
+    overflow: visible;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+    border: 0;
+    box-shadow: none;
+    background: transparent !important;
+}
+
+.gantt-bar.diamond:hover {
+    transform: translateY(-50%) scale(1.18);
+}
+
+.gantt-bar.diamond .gantt-bar-label {
+    display: none;
+}
+
+/* Today line */
+.gantt-today-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--gantt-today-color);
+    z-index: 4;
+    pointer-events: none;
+}
+
+.gantt-today-line::before {
+    content: 'Today';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--gantt-today-color);
+    white-space: nowrap;
+}
+
+/* Tooltip */
+.gantt-tooltip {
+    position: fixed;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    max-width: 300px;
+    font-size: 0.8rem;
+}
+
+.gantt-tooltip.visible {
+    opacity: 1;
+}
+
+.tooltip-title {
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+    font-size: 0.9rem;
+}
+
+.tooltip-row {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: 2px;
+    color: var(--text-secondary);
+}
+
+.tooltip-row span:first-child {
+    font-weight: 500;
+    color: var(--text-primary);
+    min-width: 60px;
+}
+
+/* ========================================
+   Legend
+   ======================================== */
+.gantt-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    margin-top: var(--space-sm);
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.legend-color {
+    width: 14px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+.legend-today {
+    width: 2px;
+    height: 14px;
+    background: var(--gantt-today-color);
+    border-radius: 1px;
+}
+
+/* ========================================
+   Utilities
+   ======================================== */
+.hidden {
+    display: none !important;
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes barAppear {
+    from {
+        transform: translateY(-50%) scaleX(0);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(-50%) scaleX(1);
+        opacity: 1;
+    }
+}
+
+.gantt-bar {
+    animation: barAppear 0.5s ease forwards;
+    transform-origin: left center;
+}
+
+.gantt-bar.milestone {
+    animation: none;
+}
+
+/* ========================================
+   Scrollbar Styling
+   ======================================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+@media (max-width: 768px) {
+    :root {
+        --gantt-label-width: 220px;
+    }
+    
+    .controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .controls-left, .controls-right {
+        flex-wrap: wrap;
+    }
+    
+    .header-content {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+}
+
+/* ========================================
+   Print / Export optimizations
+   ======================================== */
+@media print {
+    .app-header,
+    .upload-section,
+    .controls-section {
+        display: none !important;
+    }
+    
+    .gantt-wrapper {
+        border: none;
+        box-shadow: none;
+    }
+}
+
+/* ========================================
+   Notification Toast
+   ======================================== */
+.notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+    max-width: 420px;
+    font-size: 0.85rem;
+}
+
+.notification-success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.notification-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.notif-icon {
+    flex-shrink: 0;
+    display: flex;
+}
+
+.notification-success .notif-icon { color: #059669; }
+.notification-error .notif-icon { color: #dc2626; }
+
+.notif-text {
+    flex: 1;
+    white-space: pre-line;
+    line-height: 1.4;
+}
+
+.notif-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.5;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.notif-close:hover {
+    opacity: 1;
+}
+
+.notification-hide {
+    animation: slideOutRight 0.3s ease forwards;
+}
+
+/* Button spinner */
+.btn-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Sibling timeline labels when summary column is hidden */
+.gantt-row .gantt-timeline-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.78rem;
+    font-weight: 500;
+    pointer-events: auto;
+    white-space: nowrap;
+    z-index: 2;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    user-select: none;
+}
+
+.gantt-row .gantt-timeline-label:hover {
+    text-decoration: underline;
+}
+
+.gantt-row .gantt-timeline-label.inside {
+    color: #FFFFFF;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+.gantt-row .gantt-timeline-label.outside {
+    color: var(--text-primary);
+}
+
+/* Small date annotations at ends of bar in timeline */
+.gantt-row .gantt-timeline-date {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 2;
+}
+
+/* Adjust left labels panel width when summary column is hidden */
+.gantt-container.hide-summary-col .gantt-labels {
+    width: 340px !important;
+    min-width: 340px !important;
+}
