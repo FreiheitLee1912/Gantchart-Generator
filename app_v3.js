@@ -71,6 +71,13 @@ const JIRA_COLUMNS = {
 
 const SIMPLE_CSV_HEADERS = ['Summary', 'Issue Key', 'Grouping', 'Issue Type', 'Status', 'Start Date', 'End Date'];
 
+function normalizeHeaderName(header) {
+    return String(header || '')
+        .replace(/^\ufeff/, '')
+        .toLowerCase()
+        .replace(/\s+/g, '');
+}
+
 // ========================================
 // CSV Parser
 // ========================================
@@ -122,6 +129,13 @@ function parseDate(dateStr) {
     // Remove everything from the first HH:MM onwards.
     // e.g. "06/12/26 12:00 AM" -> "06/12/26"
     str = str.replace(/\s+\d{1,2}:\d{2}.*$/, '').trim();
+
+    // Support simple CSV exports that include a weekday suffix.
+    // e.g. "2027/8/31 Tue" or "2027/8/31(火)" -> "2027/8/31"
+    str = str
+        .replace(/\s+(sun|mon|tue|wed|thu|fri|sat)$/i, '')
+        .replace(/[（(]\s*[日月火水木金土]\s*[）)]$/, '')
+        .trim();
     
     // Format: DD/M/YY  (Jira export: day first, 2-digit year last  e.g. "06/12/26" = Dec 6 2026)
     const slashMatch = str.match(/^(\d{1,4})\/(\d{1,2})\/(\d{1,4})$/);
@@ -192,7 +206,25 @@ function parseCSVToTasks(text, filename) {
     
     for (const row of parseCSVGenerator(text)) {
         if (!headers) {
-            headers = row.map(h => h.toLowerCase().replace(/\s+/g, ''));
+            headers = row.map(normalizeHeaderName);
+
+            const findHeaderIndex = (...matchers) => {
+                return headers.findIndex(header => matchers.some(matcher => (
+                    typeof matcher === 'string' ? header === matcher : matcher.test(header)
+                )));
+            };
+
+            const summaryIdx = findHeaderIndex('summary');
+            if (summaryIdx !== -1) colMap.summary = summaryIdx;
+
+            const issueKeyIdx = findHeaderIndex('issuekey');
+            if (issueKeyIdx !== -1) colMap.issueKey = issueKeyIdx;
+
+            const issueTypeIdx = findHeaderIndex('issuetype');
+            if (issueTypeIdx !== -1) colMap.issueType = issueTypeIdx;
+
+            const statusIdx = findHeaderIndex('status');
+            if (statusIdx !== -1) colMap.status = statusIdx;
             
             // Dynamically find critical custom columns since they can shift alphabetically
             const grpIdx = headers.findIndex(h => h.includes('grouping'));
