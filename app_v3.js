@@ -373,10 +373,21 @@ function filterAndGroupTasks() {
         return (a.sourceOrder || 0) - (b.sourceOrder || 0);
     };
 
+    const sortMilestones = (a, b) => {
+        const oa = getMilestoneSortOrder(a);
+        const ob = getMilestoneSortOrder(b);
+        if (oa !== ob) return oa - ob;
+        return (a.sourceOrder || 0) - (b.sourceOrder || 0);
+    };
+
     const sortByGroupingAndKey = (a, b) => {
         const ga = getGroupingNumber(a);
         const gb = getGroupingNumber(b);
         if (ga !== gb) return ga - gb;
+
+        if (isMilestoneTask(a) && isMilestoneTask(b)) {
+            return sortMilestones(a, b);
+        }
         
         if (isStepMeetingTask(a) && isStepMeetingTask(b)) {
             const da = a.startDate || a.endDate || new Date(9999, 0);
@@ -393,6 +404,10 @@ function filterAndGroupTasks() {
         const ga = getGroupingNumber(a);
         const gb = getGroupingNumber(b);
         if (ga !== gb) return ga - gb;
+
+        if (isMilestoneTask(a) && isMilestoneTask(b)) {
+            return sortMilestones(a, b);
+        }
         
         if (isStepMeetingTask(a) && isStepMeetingTask(b)) {
             const da = a.startDate || a.endDate || new Date(9999, 0);
@@ -431,6 +446,14 @@ function getDisplayGroupingName(groupName) {
 
 function isMilestoneTask(task) {
     return task.grouping === 'Milestone' || String(task.type || '').trim().toLowerCase().includes('milestone');
+}
+
+function getMilestoneSortOrder(task) {
+    const summary = String(task.summary || '').toUpperCase().replace(/\s+/g, ' ').trim();
+    if (summary.includes('OEM SOP')) return 1;
+    if (summary.includes('ML SOP')) return 2;
+    if (summary.includes('INF SOP')) return 3;
+    return 100;
 }
 
 function isStepMeetingTask(task) {
