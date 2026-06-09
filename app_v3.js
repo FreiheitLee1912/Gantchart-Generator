@@ -481,9 +481,9 @@ function getTaskGroupingKey(task) {
 
 function getMilestoneSortOrder(task) {
     const summary = String(task.summary || '').toUpperCase().replace(/\s+/g, ' ').trim();
-    if (summary.includes('OEM SOP')) return 1;
+    if (summary.includes('INF SOP')) return 1;
     if (summary.includes('ML SOP')) return 2;
-    if (summary.includes('INF SOP')) return 3;
+    if (summary.includes('OEM SOP')) return 3;
     return 100;
 }
 
