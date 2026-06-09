@@ -266,23 +266,25 @@ function parseCSVToTasks(text, filename) {
         const typeLower = type.toLowerCase();
         const summaryUpper = String(summary).toUpperCase();
         const isMilestone = typeLower.includes('milestone') || typeLower.includes('sop') || summaryUpper.includes('SOP') || summaryUpper.includes('OEM LO');
+        const isLoi = summaryUpper.trim() === 'LOI';
+        const effectiveGroupingName = isLoi ? '04.Design' : (isMilestone ? 'Milestone' : grouping);
         
         if (key && (effectiveStart || effectiveEnd)) {
             tasks.push({
                 key,
-                displayKey: isMilestone ? 'Milestone' : (grouping || ''),
+                displayKey: effectiveGroupingName || '',
                 type,
                 parent: '',
                 summary,
                 status,
-                assignee: grouping || '',
-                grouping: isMilestone ? 'Milestone' : grouping,
+                assignee: effectiveGroupingName || grouping || '',
+                grouping: effectiveGroupingName,
                 startDate: effectiveStart,
                 endDate: effectiveEnd,
                 startDateRaw: startDate,
                 endDateRaw: deadline,
                 source: filename,
-                project: grouping || key.split('-')[0],
+                project: effectiveGroupingName || grouping || key.split('-')[0],
                 sourceOrder: tasks.length,
             });
         }
@@ -388,6 +390,10 @@ function filterAndGroupTasks() {
         if (isMilestoneTask(a) && isMilestoneTask(b)) {
             return sortMilestones(a, b);
         }
+
+        if (isLoiTask(a) !== isLoiTask(b)) {
+            return isLoiTask(a) ? 1 : -1;
+        }
         
         if (isStepMeetingTask(a) && isStepMeetingTask(b)) {
             const da = a.startDate || a.endDate || new Date(9999, 0);
@@ -407,6 +413,10 @@ function filterAndGroupTasks() {
 
         if (isMilestoneTask(a) && isMilestoneTask(b)) {
             return sortMilestones(a, b);
+        }
+
+        if (isLoiTask(a) !== isLoiTask(b)) {
+            return isLoiTask(a) ? 1 : -1;
         }
         
         if (isStepMeetingTask(a) && isStepMeetingTask(b)) {
@@ -445,7 +455,11 @@ function getDisplayGroupingName(groupName) {
 }
 
 function isMilestoneTask(task) {
-    return task.grouping === 'Milestone' || String(task.type || '').trim().toLowerCase().includes('milestone');
+    return task.grouping === 'Milestone';
+}
+
+function isLoiTask(task) {
+    return String(task.summary || '').trim().toUpperCase() === 'LOI';
 }
 
 function getMilestoneSortOrder(task) {
