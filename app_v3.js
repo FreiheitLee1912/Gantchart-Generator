@@ -384,8 +384,6 @@ function filterAndGroupTasks() {
         }
         return getDateTime(task);
     };
-    const hasOemSopMilestone = withDates.some(task => isMilestoneTask(task) && isOemSopTask(task));
-
     const sortByDateThenSource = (a, b) => {
         const da = getSortTime(a);
         const db = getSortTime(b);
@@ -394,8 +392,8 @@ function filterAndGroupTasks() {
     };
 
     const sortMilestones = (a, b) => {
-        const oa = getMilestoneSortOrder(a, hasOemSopMilestone);
-        const ob = getMilestoneSortOrder(b, hasOemSopMilestone);
+        const oa = getMilestoneSortOrder(a);
+        const ob = getMilestoneSortOrder(b);
         if (oa !== ob) return oa - ob;
         return (a.sourceOrder || 0) - (b.sourceOrder || 0);
     };
@@ -480,16 +478,12 @@ function getTaskGroupingKey(task) {
     return String(task.grouping || task.displayKey || task.project || '').trim().toLowerCase();
 }
 
-function isOemSopTask(task) {
-    return String(task.summary || '').toUpperCase().replace(/\s+/g, ' ').trim().includes('OEM SOP');
-}
-
-function getMilestoneSortOrder(task, hasOemSopMilestone = false) {
+function getMilestoneSortOrder(task) {
     const summary = String(task.summary || '').toUpperCase().replace(/\s+/g, ' ').trim();
-    if (summary.includes('OEM SOP')) return 1;
-    if (summary.includes('OEM LO')) return hasOemSopMilestone ? 100 : 1;
-    if (summary.includes('ML SOP')) return 2;
-    if (summary.includes('INF SOP')) return 3;
+    if (summary.includes('OEM LO')) return 1;
+    if (summary.includes('OEM SOP')) return 2;
+    if (summary.includes('ML SOP')) return 3;
+    if (summary.includes('INF SOP')) return 4;
     return 100;
 }
 
