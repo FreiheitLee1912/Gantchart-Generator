@@ -368,9 +368,26 @@ function filterAndGroupTasks() {
     
     // Only show tasks with dates
     const withDates = tasks.filter(t => t.startDate || t.endDate);
+    const getDateTime = task => (task.startDate || task.endDate || new Date(9999, 0)).getTime();
+    const pdpSortTimes = new Map();
+    withDates.forEach(task => {
+        if (!isPdpTask(task)) return;
+        const groupKey = getTaskGroupingKey(task);
+        if (!pdpSortTimes.has(groupKey)) {
+            pdpSortTimes.set(groupKey, getDateTime(task));
+        }
+    });
+    const getSortTime = task => {
+        if (isLoiTask(task)) {
+            const pdpTime = pdpSortTimes.get(getTaskGroupingKey(task));
+            if (pdpTime != null) return pdpTime + 1;
+        }
+        return getDateTime(task);
+    };
+
     const sortByDateThenSource = (a, b) => {
-        const da = a.startDate || a.endDate || new Date(9999, 0);
-        const db = b.startDate || b.endDate || new Date(9999, 0);
+        const da = getSortTime(a);
+        const db = getSortTime(b);
         if (da - db !== 0) return da - db;
         return (a.sourceOrder || 0) - (b.sourceOrder || 0);
     };
@@ -391,13 +408,9 @@ function filterAndGroupTasks() {
             return sortMilestones(a, b);
         }
 
-        if (isLoiTask(a) !== isLoiTask(b)) {
-            return isLoiTask(a) ? 1 : -1;
-        }
-        
         if (isStepMeetingTask(a) && isStepMeetingTask(b)) {
-            const da = a.startDate || a.endDate || new Date(9999, 0);
-            const db = b.startDate || b.endDate || new Date(9999, 0);
+            const da = getSortTime(a);
+            const db = getSortTime(b);
             if (da - db !== 0) return da - db;
         }
 
@@ -415,18 +428,14 @@ function filterAndGroupTasks() {
             return sortMilestones(a, b);
         }
 
-        if (isLoiTask(a) !== isLoiTask(b)) {
-            return isLoiTask(a) ? 1 : -1;
-        }
-        
         if (isStepMeetingTask(a) && isStepMeetingTask(b)) {
-            const da = a.startDate || a.endDate || new Date(9999, 0);
-            const db = b.startDate || b.endDate || new Date(9999, 0);
+            const da = getSortTime(a);
+            const db = getSortTime(b);
             if (da - db !== 0) return da - db;
         }
         
-        const da = a.startDate || a.endDate || new Date(9999, 0);
-        const db = b.startDate || b.endDate || new Date(9999, 0);
+        const da = getSortTime(a);
+        const db = getSortTime(b);
         if (da - db !== 0) return da - db;
         
         const keyCompare = compareIssueKey(a.key, b.key);
@@ -460,6 +469,14 @@ function isMilestoneTask(task) {
 
 function isLoiTask(task) {
     return String(task.summary || '').trim().toUpperCase() === 'LOI';
+}
+
+function isPdpTask(task) {
+    return String(task.summary || '').trim().toUpperCase() === 'PDP';
+}
+
+function getTaskGroupingKey(task) {
+    return String(task.grouping || task.displayKey || task.project || '').trim().toLowerCase();
 }
 
 function getMilestoneSortOrder(task) {
