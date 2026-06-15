@@ -10,6 +10,7 @@ Jira のデータをそのまま PowerPoint に貼り付けるのではなく、
 
 - Jira CSV からガントチャートを自動作成
 - ブラウザ上でタイムラインを確認
+- ブラウザ上で開始日・終了日を直接編集
 - 16:9 形式の PowerPoint を出力
 - 4:3 形式の PowerPoint を出力
 - 修正しやすい Simple CSV を出力
@@ -47,10 +48,36 @@ v3 では、Jira から出力した `.csv` ファイルを使用します。
 1. `OPEN_GANTT_GENERATOR_V3.html` または `index_v3.html` を開きます。
 2. Jira CSV ファイルをアップロードします。
 3. ブラウザ上でタイムラインを確認します。
-4. 必要に応じて `PPT range` で出力期間を調整します。
-5. `Export 16:9 PPTX` または `Export 4:3 PPTX` をクリックします。
-6. 内容を修正したい場合は `Download Simple CSV` をクリックします。
-7. Simple CSV を修正し、再度アップロードしてガントチャートを再生成します。
+4. 必要に応じて、画面左側の `Start Date` / `End Date` を直接編集します。
+5. 必要に応じて `PPT range` で出力期間を調整します。
+6. `Export 16:9 PPTX` または `Export 4:3 PPTX` をクリックします。
+7. CSV 上でまとめて修正したい場合は `Download Simple CSV` をクリックします。
+8. Simple CSV を修正し、再度アップロードしてガントチャートを再生成します。
+
+## 日付の修正方法
+
+v3 では、日付の修正方法が 2 種類あります。
+
+### 1. Web 画面で直接修正する
+
+アップロード後の一覧画面では、左側に `Type`、`Timeline`、`Start Date`、`End Date`、`Status` が表示されます。
+
+`Start Date` と `End Date` は直接編集できます。日付を変更すると、画面上のガントチャート位置も更新されます。その状態で PowerPoint を出力すると、修正後の日付が反映されます。
+
+入力できる形式は以下です。
+
+```text
+26/6/15
+26-06-15
+```
+
+画面上の日付表示は `yy/m/d` 形式です。
+
+### 2. Simple CSV でまとめて修正する
+
+複数行をまとめて修正したい場合や、Excel で確認しながら修正したい場合は、`Download Simple CSV` を使用します。
+
+Simple CSV を修正して再アップロードすると、修正後の内容でガントチャートを再生成できます。
 
 ## Simple CSV について
 
@@ -67,6 +94,15 @@ Summary, Issue Key, Grouping, Issue Type, Status, Start Date, End Date
 このファイルを使うことで、タスク名、分類、開始日、終了日などを簡単に修正できます。
 
 修正後の Simple CSV は、そのまま v3 に再アップロードできます。
+
+Simple CSV 内の日付は、曜日付きで以下の形式になります。
+
+```text
+26/6/15（Mon）
+26/6/20（Sat）
+```
+
+この形式のまま再アップロードできます。
 
 ## PPT 出力の見え方
 
