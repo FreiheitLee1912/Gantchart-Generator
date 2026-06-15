@@ -655,6 +655,7 @@ body {
     flex-shrink: 0;
     white-space: nowrap;
     width: 62px;
+    box-sizing: border-box;
 }
 
 .task-status {
@@ -702,7 +703,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin-right: var(--space-sm);
+    margin-right: 0;
     opacity: 0.3;
     transition: opacity var(--transition-fast);
     width: 30px;
@@ -748,6 +749,7 @@ body {
     font-size: 0.72rem;
     text-align: center;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .task-date-input:hover {
@@ -1152,7 +1154,7 @@ body {
    ======================================== */
 @media (max-width: 768px) {
     :root {
-        --gantt-label-width: 220px;
+        --gantt-label-width: 560px;
     }
     
     .controls-bar {
@@ -1319,6 +1321,6 @@ body {
 
 /* Adjust left labels panel width when summary column is hidden */
 .gantt-container.hide-summary-col .gantt-labels {
-    width: 340px !important;
-    min-width: 340px !important;
+    width: 560px !important;
+    min-width: 560px !important;
 }
