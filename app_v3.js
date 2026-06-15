@@ -121,10 +121,48 @@ function* parseCSVGenerator(text) {
 // ========================================
 // Date Parser
 // ========================================
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function isValidDateParts(year, month, day, date) {
+    return date
+        && !isNaN(date.getTime())
+        && date.getFullYear() === year
+        && date.getMonth() === month - 1
+        && date.getDate() === day;
+}
+
+function dateFromParts(year, month, day) {
+    const date = new Date(year, month - 1, day);
+    return isValidDateParts(year, month, day, date) ? date : null;
+}
+
+function normalizeWeekdayDateSuffix(dateStr) {
+    let hadWeekday = false;
+    const value = String(dateStr || '')
+        .trim()
+        .replace(/\s+\d{1,2}:\d{2}.*$/, '')
+        .replace(/\s+(sun|mon|tue|wed|thu|fri|sat)$/i, () => {
+            hadWeekday = true;
+            return '';
+        })
+        .replace(/\s*[（(]\s*(sun|mon|tue|wed|thu|fri|sat)\s*[）)]\s*$/i, () => {
+            hadWeekday = true;
+            return '';
+        })
+        .replace(/[・・]\s*[譌･譛育↓豌ｴ譛ｨ驥大悄]\s*[・・]$/, () => {
+            hadWeekday = true;
+            return '';
+        })
+        .trim();
+
+    return { value, hadWeekday };
+}
+
 function parseDate(dateStr) {
     if (!dateStr || dateStr.trim() === '') return null;
     
-    let str = dateStr.trim();
+    const normalized = normalizeWeekdayDateSuffix(dateStr);
+    let str = normalized.value;
     
     // Remove everything from the first HH:MM onwards.
     // e.g. "06/12/26 12:00 AM" -> "06/12/26"
@@ -147,6 +185,9 @@ function parseDate(dateStr) {
         if (a > 31) {
             // YYYY/M/D  (4-digit year first)
             year = a; month = b - 1; day = c;
+        } else if (normalized.hadWeekday && a <= 99) {
+            // Generated simple CSV: YY/M/D with weekday suffix.
+            year = a + 2000; month = b - 1; day = c;
         } else if (c <= 99) {
             // DD/M/YY  (2-digit year last) 遯ｶ繝ｻJira format
             day = a; month = b - 1; year = c + 2000;
@@ -154,9 +195,7 @@ function parseDate(dateStr) {
             // D/M/YYYY (4-digit year last)
             day = a; month = b - 1; year = c;
         }
-        const result = new Date(year, month, day);
-        if (!isNaN(result.getTime())) return result;
-        return null;
+        return dateFromParts(year, month + 1, day);
     }
     
     // Format: YYYY-MM-DD
@@ -179,6 +218,33 @@ function formatDate(date) {
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+}
+
+function parseEditableDate(dateStr) {
+    if (!dateStr || !dateStr.trim()) return null;
+    const normalized = normalizeWeekdayDateSuffix(dateStr);
+    const str = normalized.value;
+    const match = str.match(/^(\d{2,4})[/-](\d{1,2})[/-](\d{1,2})$/);
+    if (!match) return parseDate(str);
+
+    const first = parseInt(match[1], 10);
+    const year = first < 100 ? first + 2000 : first;
+    const month = parseInt(match[2], 10);
+    const day = parseInt(match[3], 10);
+    return dateFromParts(year, month, day);
+}
+
+function formatDateForList(date) {
+    if (!date) return '';
+    const y = String(date.getFullYear()).slice(-2);
+    const m = date.getMonth() + 1;
+    const d = date.getDate();
+    return `${y}/${m}/${d}`;
+}
+
+function formatDateForSimpleCSV(date) {
+    if (!date) return '';
+    return `${formatDateForList(date)}（${WEEKDAY_LABELS[date.getDay()]}）`;
 }
 
 // ========================================
@@ -312,8 +378,8 @@ function buildSimpleCSV(tasks) {
                 task.grouping || task.displayKey || '',
                 task.type || 'Task',
                 task.status || '',
-                formatDate(task.startDate),
-                formatDate(task.endDate),
+                formatDateForSimpleCSV(task.startDate),
+                formatDateForSimpleCSV(task.endDate),
             ]);
         });
 
@@ -739,11 +805,9 @@ function renderLabels(tasks) {
         <span style="min-width:95px">Timeline</span>
         ${state.hideSummaryColumn ? '' : '<span style="flex:1;min-width:190px">Summary</span>'}
         <span style="min-width:70px">Type</span>
+        <span style="min-width:82px">Start Date</span>
+        <span style="min-width:82px">End Date</span>
         <span style="min-width:90px">Status</span>
-        ${state.hideSummaryColumn ? '' : `
-        <span style="min-width:85px">Start</span>
-        <span style="min-width:85px">End</span>
-        `}
     `;
     container.appendChild(header);
     
@@ -769,11 +833,9 @@ function renderLabels(tasks) {
                 <span class="task-key">${item.displayKey || item.key}</span>
                 ${state.hideSummaryColumn ? '' : `<span class="task-name editable" contenteditable="true" style="background:#${style.summaryBg};color:#fff;border-radius:4px;padding:3px 8px;text-align:center;font-weight:600" onblur="updateTask('${item.key}', 'summary', this.innerText)">${item.summary}</span>`}
                 <span class="task-type-badge" style="background:${typeConf.hex}22;color:${typeConf.hex}">${typeConf.label}</span>
+                <input class="task-date-input" value="${formatDateForList(item.startDate)}" onchange="updateTask('${item.key}', 'startDate', this.value)" title="Start Date">
+                <input class="task-date-input" value="${formatDateForList(item.endDate)}" onchange="updateTask('${item.key}', 'endDate', this.value)" title="End Date">
                 <span class="task-status">${item.status || ''}</span>
-                ${state.hideSummaryColumn ? '' : `
-                <span class="task-date editable" contenteditable="true" onblur="updateTask('${item.key}', 'startDate', this.innerText)">${formatDate(item.startDate)}</span>
-                <span class="task-date editable" contenteditable="true" onblur="updateTask('${item.key}', 'endDate', this.innerText)">${formatDate(item.endDate)}</span>
-                `}
             `;
         }
         
@@ -799,12 +861,13 @@ function updateTask(key, field, value) {
     if (!task) return;
     
     if (field === 'startDate' || field === 'endDate') {
-        const d = parseDate(value);
+        const d = parseEditableDate(value);
         if (d) {
             task[field] = d;
             renderGantt(); // Re-render to update bar position
         } else {
             // Restore if invalid
+            showNotification('Invalid date. Use yy/m/d or yy-m-d.', 'error');
             renderGantt();
         }
     } else {

@@ -37,7 +37,7 @@
     /* Gantt specific */
     --gantt-row-height: 44px;
     --gantt-header-height: 70px;
-    --gantt-label-width: 680px;
+    --gantt-label-width: 760px;
     --gantt-bar-height: 24px;
     --gantt-grid-color: rgba(255, 255, 255, 0.05);
     --gantt-today-color: #e53e3e;
@@ -692,6 +692,32 @@ body {
     min-width: 85px;
     text-align: right;
     white-space: nowrap;
+}
+
+.task-date-input {
+    width: 82px;
+    min-width: 82px;
+    height: 26px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.task-date-input:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-color);
+}
+
+.task-date-input:focus {
+    outline: none;
+    background: var(--bg-secondary);
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
 }
 
 .editable {
