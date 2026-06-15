@@ -37,7 +37,7 @@
     /* Gantt specific */
     --gantt-row-height: 44px;
     --gantt-header-height: 70px;
-    --gantt-label-width: 760px;
+    --gantt-label-width: 720px;
     --gantt-bar-height: 24px;
     --gantt-grid-color: rgba(255, 255, 255, 0.05);
     --gantt-today-color: #e53e3e;
@@ -576,6 +576,42 @@ body {
     letter-spacing: 0.05em;
     border-bottom: 2px solid var(--border-color);
     background: var(--bg-secondary);
+    gap: var(--space-sm);
+}
+
+.label-col {
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.label-move {
+    width: 30px;
+}
+
+.label-type {
+    width: 62px;
+    text-align: center;
+}
+
+.label-timeline {
+    width: 122px;
+}
+
+.label-summary {
+    flex: 1;
+    min-width: 190px;
+}
+
+.label-start,
+.label-end {
+    width: 88px;
+    text-align: center;
+}
+
+.label-status {
+    width: 72px;
 }
 
 .gantt-label-row {
@@ -618,14 +654,15 @@ body {
     text-transform: uppercase;
     flex-shrink: 0;
     white-space: nowrap;
+    width: 62px;
 }
 
 .task-status {
     font-size: 0.72rem;
     font-weight: 500;
     color: var(--text-muted);
-    min-width: 90px;
-    max-width: 90px;
+    min-width: 72px;
+    max-width: 72px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -637,7 +674,10 @@ body {
     font-weight: 600;
     color: var(--text-muted);
     flex-shrink: 0;
-    min-width: 60px;
+    width: 122px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .task-name {
@@ -665,6 +705,8 @@ body {
     margin-right: var(--space-sm);
     opacity: 0.3;
     transition: opacity var(--transition-fast);
+    width: 30px;
+    flex-shrink: 0;
 }
 
 .gantt-label-row:hover .move-controls {
@@ -695,8 +737,8 @@ body {
 }
 
 .task-date-input {
-    width: 82px;
-    min-width: 82px;
+    width: 88px;
+    min-width: 88px;
     height: 26px;
     border: 1px solid transparent;
     border-radius: 6px;

@@ -801,13 +801,13 @@ function renderLabels(tasks) {
     const header = document.createElement('div');
     header.className = 'gantt-label-header';
     header.innerHTML = `
-        <span style="min-width:30px"></span>
-        <span style="min-width:95px">Timeline</span>
-        ${state.hideSummaryColumn ? '' : '<span style="flex:1;min-width:190px">Summary</span>'}
-        <span style="min-width:70px">Type</span>
-        <span style="min-width:82px">Start Date</span>
-        <span style="min-width:82px">End Date</span>
-        <span style="min-width:90px">Status</span>
+        <span class="label-col label-move"></span>
+        <span class="label-col label-type">Type</span>
+        <span class="label-col label-timeline">Timeline</span>
+        ${state.hideSummaryColumn ? '' : '<span class="label-col label-summary">Summary</span>'}
+        <span class="label-col label-start">Start Date</span>
+        <span class="label-col label-end">End Date</span>
+        <span class="label-col label-status">Status</span>
     `;
     container.appendChild(header);
     
@@ -830,9 +830,9 @@ function renderLabels(tasks) {
                     <button class="move-btn" onclick="moveTask('${item.key}', -1)">^</button>
                     <button class="move-btn" onclick="moveTask('${item.key}', 1)">v</button>
                 </div>
+                <span class="task-type-badge" style="background:${typeConf.hex}22;color:${typeConf.hex}">${typeConf.label}</span>
                 <span class="task-key">${item.displayKey || item.key}</span>
                 ${state.hideSummaryColumn ? '' : `<span class="task-name editable" contenteditable="true" style="background:#${style.summaryBg};color:#fff;border-radius:4px;padding:3px 8px;text-align:center;font-weight:600" onblur="updateTask('${item.key}', 'summary', this.innerText)">${item.summary}</span>`}
-                <span class="task-type-badge" style="background:${typeConf.hex}22;color:${typeConf.hex}">${typeConf.label}</span>
                 <input class="task-date-input" value="${formatDateForList(item.startDate)}" onchange="updateTask('${item.key}', 'startDate', this.value)" title="Start Date">
                 <input class="task-date-input" value="${formatDateForList(item.endDate)}" onchange="updateTask('${item.key}', 'endDate', this.value)" title="End Date">
                 <span class="task-status">${item.status || ''}</span>
